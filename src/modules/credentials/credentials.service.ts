@@ -1,9 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { CreateCredentialDto } from './dto/create-credential.dto';
 import { UpdateCredentialDto } from './dto/update-credential.dto';
 import { Credential, CredentialDocument } from './schemas/credentials.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
+import * as bcrypt from 'bcrypt';
+import { SignInDto } from '../auth/dto';
 
 @Injectable()
 export class CredentialsService {
@@ -12,16 +14,21 @@ export class CredentialsService {
     private credentialModel: Model<CredentialDocument>,
   ) {}
 
-  create(createCredentialDto: CreateCredentialDto) {
-    return 'This action adds a new credential';
-  }
+  async create(createCredential: SignInDto) {
+    const { password } = createCredential;
 
-  findAll() {
-    return `This action returns all credentials`;
-  }
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  findOne(id: string) {
-    return `This action returns a #${id} credential`;
+    if (hashedPassword) {
+      createCredential.password = hashedPassword;
+    } else {
+      throw new ConflictException('Error creando reserva');
+    }
+
+    const createdCredential =
+      await this.credentialModel.create(createCredential);
+
+    return createdCredential;
   }
 
   async findByEmail(email: string) {
@@ -30,11 +37,7 @@ export class CredentialsService {
     return credential;
   }
 
-  update(id: string, updateCredentialDto: UpdateCredentialDto) {
-    return `This action updates a #${id} credential`;
-  }
-
   remove(id: string) {
-    return `This action removes a #${id} credential`;
+    return this.credentialModel.findByIdAndDelete({ _id: id });
   }
 }
