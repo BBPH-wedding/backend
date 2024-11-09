@@ -5,6 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { envs } from 'src/config/envs';
 import { CredentialsService } from '../credentials/credentials.service';
 import { CredentialsModule } from '../credentials/credentials.module';
+import { MailsService } from '../mails/mails.service';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { CredentialsModule } from '../credentials/credentials.module';
     CredentialsModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, MailsService],
 })
 export class AuthModule {}
