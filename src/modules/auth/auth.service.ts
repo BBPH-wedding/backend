@@ -8,11 +8,13 @@ import * as bcrypt from 'bcrypt';
 import { envs } from 'src/config/envs';
 import { EntryVerificationDto, SignInDto } from './dto';
 import { CredentialsService } from '../credentials/credentials.service';
+import { MailsService } from '../mails/mails.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
+    private readonly mailsService: MailsService,
     private readonly credentialsService: CredentialsService, //Eliminar cuando este listo Reservations
     // private readonly reservationsService: ReservationsService,
   ) {}
@@ -48,5 +50,13 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
 
     return token;
+  }
+
+  async pruebaEmail(body: any) {
+    const email = body.email;
+
+    await this.mailsService.sendMail(email, 'prueba', body.template, {
+      [body.key]: body.context,
+    });
   }
 }

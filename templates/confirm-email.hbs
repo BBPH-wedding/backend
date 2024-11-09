@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Estilos básicos */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+        .email-container {
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .header h1 {
+            color: #4CAF50;
+        }
+        .content {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <h1>Confirma tu Correo Electrónico</h1>
+        </div>
+        <div class="content">
+            <p>¡Hola!</p>
+            <p>Gracias por registrarte. Para completar tu registro, ingresa el siguiente código de confirmación en el formulario:</p>
+            <div class="code">{{code}}</div>
+            <p>Este código es válido por un tiempo limitado.</p>
+        </div>
+        <div class="footer">
+            <p>Si no solicitaste esta confirmación, puedes ignorar este correo.</p>
+            <p>© 2024 Wedding Site</p>
+        </div>
+    </div>
+</body>
+</html>
