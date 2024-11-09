@@ -8,7 +8,7 @@ import { CredentialsModule } from './modules/credentials/credentials.module';
   imports: [
     MongooseModule.forRoot(envs.databaseUrl),
     AuthModule,
-    CredentialsModule,
+    CredentialsModule, //Eliminar cuando este listo Reservations
   ],
 })
 export class AppModule {}

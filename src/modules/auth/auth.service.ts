@@ -13,7 +13,8 @@ import { CredentialsService } from '../credentials/credentials.service';
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly credentialsService: CredentialsService,
+    private readonly credentialsService: CredentialsService, //Eliminar cuando este listo Reservations
+    // private readonly reservationsService: ReservationsService,
   ) {}
 
   async entryVerification(entryVerificationDto: EntryVerificationDto) {
@@ -31,7 +32,8 @@ export class AuthService {
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
 
-    const checkCredential = await this.credentialsService.findByEmail(email);
+    const checkCredential = await this.credentialsService.findByEmail(email); //Eliminar cuando este listo Reservations
+    // const checkCredential = await this.reservationsService.findByEmail(email);
     if (!checkCredential)
       throw new UnauthorizedException('Credenciales Inválidas');
 
