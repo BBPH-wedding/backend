@@ -4,6 +4,8 @@ import * as joi from 'joi';
 interface IEnvVars {
   PORT: number;
 
+  CLIENT_BASE_URL: string;
+
   DATABASE_URL: string;
 
   JWT_SECRET: string;
@@ -29,6 +31,8 @@ interface IEnvVars {
 const envsSchema = joi
   .object({
     PORT: joi.number().required(),
+
+    CLIENT_BASE_URL: joi.string().uri().required(),
 
     DATABASE_URL: joi.string().required(),
 
@@ -63,6 +67,8 @@ const envVars: IEnvVars = value;
 
 export const envs = {
   port: envVars.PORT,
+
+  clientBaseUrl: envVars.CLIENT_BASE_URL,
 
   databaseUrl: envVars.DATABASE_URL,
 

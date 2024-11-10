@@ -4,4 +4,5 @@ export interface TContextMail {
   name?: string;
   code?: string;
   reservation?: IReservation;
+  url?: string;
 }
