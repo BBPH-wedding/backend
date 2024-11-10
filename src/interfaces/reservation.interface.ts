@@ -1,13 +1,16 @@
+import { ReservationStatus } from 'src/constants';
+
 export interface IReservation {
   email: string;
 
-  members: IMember[];
-  nMembers: number;
-  contact: string;
+  peopleComing: IMember[];
+  nMembers?: number;
+  phoneNumber: string;
+  status: ReservationStatus;
   notes: string;
 }
 
 interface IMember {
-  first_name: string;
-  last_name: string;
+  firstName: string;
+  lastName: string;
 }

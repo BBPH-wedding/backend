@@ -43,7 +43,10 @@ export class MailsService {
       TEMPLATES_MAIL.NEW_RESERVATION_COUPLE;
 
     const context: TContextMail = {
-      reservation,
+      reservation: {
+        ...reservation,
+        nMembers: reservation.peopleComing.length,
+      },
     };
 
     //Enviar email al usuario
@@ -62,7 +65,10 @@ export class MailsService {
       TEMPLATES_MAIL.UPDATED_RESERVATION_COUPLE;
 
     const context: TContextMail = {
-      reservation,
+      reservation: {
+        ...reservation,
+        nMembers: reservation.peopleComing.length,
+      },
     };
 
     //Enviar email al usuario

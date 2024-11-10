@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsStrongPassword } from 'class-validator';
 
 export class CreateReservationDto {
   @IsEmail()
@@ -6,5 +6,7 @@ export class CreateReservationDto {
   email: string;
 
   @IsNotEmpty()
+  @IsString()
+  @IsStrongPassword()
   password: string;
 }

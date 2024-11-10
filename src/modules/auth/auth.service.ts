@@ -7,16 +7,15 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { envs } from 'src/config/envs';
 import { EntryVerificationDto, SignInDto } from './dto';
-import { CredentialsService } from '../credentials/credentials.service';
 import { MailsService } from '../mails/mails.service';
+import { ReservationService } from '../reservations/reservations.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly mailsService: MailsService,
-    private readonly credentialsService: CredentialsService, //Eliminar cuando este listo Reservations
-    // private readonly reservationsService: ReservationsService,
+    private readonly reservationService: ReservationService,
   ) {}
 
   async entryVerification(entryVerificationDto: EntryVerificationDto) {
@@ -34,17 +33,21 @@ export class AuthService {
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
 
-    const checkCredential = await this.credentialsService.findByEmail(email); //Eliminar cuando este listo Reservations
-    // const checkCredential = await this.reservationsService.findByEmail(email);
-    if (!checkCredential)
-      throw new UnauthorizedException('Credenciales Inválidas');
+    const checkReservation = await this.reservationService.findByEmail(email);
+    if (!checkReservation)
+      throw new UnauthorizedException('Invalid Credentials');
 
-    const checkPass = await bcrypt.compare(password, checkCredential.password);
-    if (!checkPass) throw new UnauthorizedException('Credenciales Inválidas');
+    const checkPass = await bcrypt.compare(password, checkReservation.password);
+    if (!checkPass) throw new UnauthorizedException('Invalid Credentials');
+
+    if (!checkReservation.isConfirmedEmail)
+      return {
+        message:
+          'You must confirm your email to complete your reservation details.',
+      };
 
     const payload = {
-      id: checkCredential._id,
-      email: checkCredential.email,
+      email: checkReservation.email,
     };
 
     const token = this.jwtService.sign(payload);

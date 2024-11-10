@@ -5,9 +5,6 @@ export class ConfirmReservationDto {
   @IsNotEmpty()
   email: string;
 
-  @IsNotEmpty()
-  password: string;
-
   @IsString()
   @IsNotEmpty()
   confirmationToken: string;

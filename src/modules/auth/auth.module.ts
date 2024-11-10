@@ -3,9 +3,9 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { envs } from 'src/config/envs';
-import { CredentialsService } from '../credentials/credentials.service';
-import { CredentialsModule } from '../credentials/credentials.module';
 import { MailsService } from '../mails/mails.service';
+import { ReservationService } from '../reservations/reservations.service';
+import { ReservationsModule } from '../reservations/reservations.module';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { MailsService } from '../mails/mails.service';
       secret: envs.jwtSecret,
       signOptions: { expiresIn: envs.jwtExpiresIn },
     }),
-    CredentialsModule,
+    ReservationsModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, MailsService],

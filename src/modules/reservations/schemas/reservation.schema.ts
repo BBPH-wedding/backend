@@ -6,16 +6,19 @@ export type ReservationDocument = Reservation & Document;
 
 @Schema({ timestamps: true })
 export class Reservation {
-  @Prop({ required: true, unique: true })
+  @Prop({ type: String, required: true, unique: true })
   email: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   password: string;
 
-  @Prop()
+  @Prop({ type: String })
   confirmationToken: string;
 
   @Prop()
+  isConfirmedEmail: boolean;
+
+  @Prop({ type: String })
   phoneNumber: string;
 
   @Prop({ type: [{ firstName: String, lastName: String }] })
@@ -23,11 +26,11 @@ export class Reservation {
 
   @Prop({
     type: String,
-    enum: ReservationStatus
+    enum: ReservationStatus,
   })
   status: ReservationStatus;
 
-  @Prop()
+  @Prop({ type: String })
   notes: string;
 }
 
