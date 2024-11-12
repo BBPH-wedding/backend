@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate {
 
       payload.iat = new Date(payload.iat * 1000);
       payload.exp = new Date(payload.exp * 1000);
-      request['user'] = payload;
+      request['reservation'] = payload;
     } catch {
       throw new UnauthorizedException('Invalid Token');
     }

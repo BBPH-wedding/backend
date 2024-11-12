@@ -1,12 +1,11 @@
 import {
-  ForbiddenException,
+  BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { envs } from 'src/config/envs';
-import { EntryVerificationDto, SignInDto } from './dto';
+import { SignInDto } from './dto';
 import { MailsService } from '../mails/mails.service';
 import { ReservationService } from '../reservations/reservations.service';
 
@@ -29,10 +28,9 @@ export class AuthService {
     if (!checkPass) throw new UnauthorizedException('Invalid Credentials');
 
     if (!checkReservation.isConfirmedEmail)
-      return {
-        message:
-          'You must confirm your email to complete your reservation details. Vuelve a crear la reserva',
-      };
+      throw new BadRequestException(
+        'You must confirm your email to complete your reservation details. Go back to create reservation',
+      );
 
     const payload = {
       email: checkReservation.email,
