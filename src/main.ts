@@ -7,6 +7,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const logger = new Logger('Payments-MS');
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
