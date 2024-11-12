@@ -31,12 +31,9 @@ export class ReservationService {
 
     const foundReservation = await this.findByEmail(email);
 
-    if (foundReservation && foundReservation.isConfirmedEmail === true) {
+    if (foundReservation && foundReservation.isConfirmedEmail) {
       throw new BadRequestException('This email is already registered');
-    } else if (
-      foundReservation &&
-      foundReservation.isConfirmedEmail === false
-    ) {
+    } else if (foundReservation && !foundReservation.isConfirmedEmail) {
       return {
         message:
           "You already have a reservation with this email. It needs verification; we'll redirect you to the verification form.",
@@ -56,7 +53,7 @@ export class ReservationService {
       newReservation.confirmationToken,
     );
 
-    return await newReservation.save();
+    return "Reservation created succesfully";
   }
 
   async confirm(
@@ -110,7 +107,7 @@ export class ReservationService {
 
     const updatedReservation = await reservationToConfirm.save();
 
-    if (reservationToConfirm.peopleComing.length === 0) {
+    if (reservationToConfirm.status === ReservationStatus.PENDING) {
       await this.mailService.sendNewReservationEmail(email, updatedReservation);
     } else {
       await this.mailService.sendUpdatedReservationEmail(

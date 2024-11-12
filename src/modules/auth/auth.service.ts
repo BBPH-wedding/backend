@@ -18,18 +18,6 @@ export class AuthService {
     private readonly reservationService: ReservationService,
   ) {}
 
-  async entryVerification(entryVerificationDto: EntryVerificationDto) {
-    const { password } = entryVerificationDto;
-
-    // console.log(bcrypt.hashSync(password, 10));
-
-    const isOkPassword = bcrypt.compareSync(password, envs.accessPassword);
-
-    if (!isOkPassword) throw new ForbiddenException('Contraseña Incorrecta');
-
-    return true;
-  }
-
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
 
@@ -43,7 +31,7 @@ export class AuthService {
     if (!checkReservation.isConfirmedEmail)
       return {
         message:
-          'You must confirm your email to complete your reservation details.',
+          'You must confirm your email to complete your reservation details. Vuelve a crear la reserva',
       };
 
     const payload = {

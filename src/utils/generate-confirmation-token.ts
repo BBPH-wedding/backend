@@ -1,7 +1,7 @@
 export function generateConfirmationToken(): string {
     const characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    const tokenLength = 8;
+      '0123456789';
+    const tokenLength = 6;
     let result = '';
   
     for (let i = 0; i < tokenLength; i++) {
