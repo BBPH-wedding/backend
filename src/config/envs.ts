@@ -11,14 +11,6 @@ interface IEnvVars {
   JWT_SECRET: string;
   JWT_EXPIRES_IN: string;
 
-  ACCESS_PASSWORD: string;
-
-  CLOUDINARY_CLOUD_NAME: string;
-  CLOUDINARY_API_KEY: string;
-  CLOUDINARY_API_SECRET: string;
-
-  MAX_FILE_SIZE: number;
-
   SMTP_HOST: string;
   SMTP_PORT: number;
   SMTP_USER: string;
@@ -38,14 +30,6 @@ const envsSchema = joi
 
     JWT_SECRET: joi.string().required(),
     JWT_EXPIRES_IN: joi.string().required(),
-
-    ACCESS_PASSWORD: joi.string().required(),
-
-    CLOUDINARY_CLOUD_NAME: joi.string().required(),
-    CLOUDINARY_API_KEY: joi.string().required(),
-    CLOUDINARY_API_SECRET: joi.string().required(),
-
-    MAX_FILE_SIZE: joi.number().required(),
 
     SMTP_HOST: joi.string().required(),
     SMTP_PORT: joi.number().required(),
@@ -74,14 +58,6 @@ export const envs = {
 
   jwtSecret: envVars.JWT_SECRET,
   jwtExpiresIn: envVars.JWT_EXPIRES_IN,
-
-  accessPassword: envVars.ACCESS_PASSWORD,
-
-  cloudinaryCloudName: envVars.CLOUDINARY_CLOUD_NAME,
-  cloudinaryKey: envVars.CLOUDINARY_API_KEY,
-  cloudinarySecret: envVars.CLOUDINARY_API_SECRET,
-
-  maxFileSize: envVars.MAX_FILE_SIZE,
 
   smtpHost: envVars.SMTP_HOST,
   smtpPort: envVars.SMTP_PORT,
