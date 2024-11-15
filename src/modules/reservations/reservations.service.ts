@@ -137,7 +137,7 @@ export class ReservationService {
 
     const updatedReservation = await this.reservationModel.findOneAndUpdate(
       { email },
-      { password: hashedPassword },
+      { $set: { password: hashedPassword } },
       { new: true },
     );
 
@@ -160,9 +160,11 @@ export class ReservationService {
     if (!reservationToConfirm)
       throw new NotFoundException('Reservation not found');
 
-    reservationToConfirm.set(updateFields);
-
-    const updatedReservation = await reservationToConfirm.save();
+    const updatedReservation = await this.reservationModel.findOneAndUpdate(
+      { email },
+      { $set: updateFields },
+      { new: true },
+    );
 
     if (reservationToConfirm.status === ReservationStatus.PENDING) {
       await this.mailService.sendNewReservationEmail(email, updatedReservation);
