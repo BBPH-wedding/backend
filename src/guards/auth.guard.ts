@@ -16,7 +16,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException('Se requiere token para esta acción');
+      throw new UnauthorizedException('Token is required for this action');
     }
     try {
       const payload = await this.jwtService.verifyAsync(token, {
@@ -25,9 +25,9 @@ export class AuthGuard implements CanActivate {
 
       payload.iat = new Date(payload.iat * 1000);
       payload.exp = new Date(payload.exp * 1000);
-      request['user'] = payload;
+      request['reservation'] = payload;
     } catch {
-      throw new UnauthorizedException('Token Inválido');
+      throw new UnauthorizedException('Invalid Token');
     }
     return true;
   }

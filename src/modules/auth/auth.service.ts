@@ -1,50 +1,51 @@
 import {
-  ForbiddenException,
+  BadRequestException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { envs } from 'src/config/envs';
-import { EntryVerificationDto, SignInDto } from './dto';
-import { CredentialsService } from '../credentials/credentials.service';
+import { SignInDto } from './dto';
+import { MailsService } from '../mails/mails.service';
+import { ReservationService } from '../reservations/reservations.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly credentialsService: CredentialsService,
+    private readonly mailsService: MailsService,
+    private readonly reservationService: ReservationService,
   ) {}
-
-  async entryVerification(entryVerificationDto: EntryVerificationDto) {
-    const { password } = entryVerificationDto;
-
-    // console.log(bcrypt.hashSync(password, 10));
-
-    const isOkPassword = bcrypt.compareSync(password, envs.accessPassword);
-
-    if (!isOkPassword) throw new ForbiddenException('Contraseña Incorrecta');
-
-    return true;
-  }
 
   async signIn(signInDto: SignInDto) {
     const { email, password } = signInDto;
 
-    const checkCredential = await this.credentialsService.findByEmail(email);
-    if (!checkCredential)
-      throw new UnauthorizedException('Credenciales Inválidas');
+    const checkReservation = await this.reservationService.findByEmail(email);
+    if (!checkReservation)
+      throw new UnauthorizedException('Invalid Credentials');
 
-    const checkPass = await bcrypt.compare(password, checkCredential.password);
-    if (!checkPass) throw new UnauthorizedException('Credenciales Inválidas');
+    const checkPass = await bcrypt.compare(password, checkReservation.password);
+    if (!checkPass) throw new UnauthorizedException('Invalid Credentials');
+
+    if (!checkReservation.isConfirmedEmail)
+      throw new BadRequestException(
+        'You must confirm your email to complete your reservation details. Go back to create reservation',
+      );
 
     const payload = {
-      id: checkCredential._id,
-      email: checkCredential.email,
+      email: checkReservation.email,
     };
 
     const token = this.jwtService.sign(payload);
 
     return token;
+  }
+
+  async pruebaEmail(body: any) {
+    const email = body.email;
+
+    await this.mailsService.sendMail(email, 'prueba', body.template, {
+      [body.key]: body.context,
+    });
   }
 }
