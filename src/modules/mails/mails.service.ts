@@ -78,13 +78,23 @@ export class MailsService {
     await this.sendMail(envs.smtpUser, subject, templateCouple, context);
   }
 
-  async sendResetPassword(user: string, email: string, token: string) {
+  async sendResetPassword(email: string, token: string) {
     const url = `${this.CLIENT_BASE_URL}/resetPassword?token=${token}`;
     const subject: SUBJECT_MAIL = SUBJECT_MAIL.NEW_PASSWORD;
     const template: TEMPLATES_MAIL = TEMPLATES_MAIL.RESET_PASSWORD;
     const context: TContextMail = {
       url,
     };
+    await this.sendMail(email, subject, template, context);
+  }
+
+  async sendPasswordChangeConfirmation(email: string) {
+    const subject: SUBJECT_MAIL = SUBJECT_MAIL.PASSWORD_CHANGED;
+    const template: TEMPLATES_MAIL =
+      TEMPLATES_MAIL.PASSWORD_CHANGE_CONFIRMATION;
+      
+    const context: TContextMail = { email };
+
     await this.sendMail(email, subject, template, context);
   }
 }

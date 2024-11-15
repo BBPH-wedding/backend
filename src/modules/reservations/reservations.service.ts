@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -17,30 +19,43 @@ import { ConfirmReservationDto } from 'src/modules/reservations/dto/confirm-rese
 import { UpdateReservationDto } from 'src/modules/reservations/dto/update-reservation.dto';
 import { ReservationStatus } from 'src/constants';
 import { MailsService } from '../mails/mails.service';
+import { JwtService } from '@nestjs/jwt';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class ReservationService {
   constructor(
     @InjectModel(Reservation.name)
+    @Inject(forwardRef(() => AuthService))
     private reservationModel: Model<ReservationDocument>,
     private readonly mailService: MailsService,
+    private readonly jwtService: JwtService,
   ) {}
 
   async create(createReservationDto: CreateReservationDto) {
     const { email, password } = createReservationDto;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const foundReservation = await this.findByEmail(email);
 
     if (foundReservation && foundReservation.isConfirmedEmail) {
       throw new BadRequestException('This email is already registered');
     } else if (foundReservation && !foundReservation.isConfirmedEmail) {
-      return {
-        message:
-          "You already have a reservation with this email. It needs verification; we'll redirect you to the verification form.",
-      };
+      foundReservation.password = hashedPassword;
+      foundReservation.confirmationToken = generateConfirmationToken();
+
+      await foundReservation.save();
+
+      await this.mailService.sendConfirmationEmail(
+        email,
+        foundReservation.confirmationToken,
+      );
+
+      return 'Reservation created succesfully';
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
     const newReservation = new this.reservationModel({
       email,
       password: hashedPassword,
@@ -48,29 +63,29 @@ export class ReservationService {
       isConfirmedEmail: false,
     });
 
+    await newReservation.save();
+
     await this.mailService.sendConfirmationEmail(
       email,
       newReservation.confirmationToken,
     );
 
-    return "Reservation created succesfully";
+    return 'Reservation created succesfully';
   }
 
-  async confirm(
-    confirmReservationDto: ConfirmReservationDto,
-  ): Promise<Reservation | null> {
+  async confirm(confirmReservationDto: ConfirmReservationDto) {
     const { email, confirmationToken } = confirmReservationDto;
 
     const reservationToActivate = await this.reservationModel
       .findOne({ email })
       .exec();
 
-    if (reservationToActivate.isConfirmedEmail === true)
+    if (reservationToActivate?.isConfirmedEmail)
       throw new BadRequestException('This email is already validated');
 
     if (
       !reservationToActivate ||
-      confirmationToken != reservationToActivate.confirmationToken
+      confirmationToken != reservationToActivate?.confirmationToken
     )
       throw new BadRequestException('Invalid code');
 
@@ -78,11 +93,18 @@ export class ReservationService {
     reservationToActivate.isConfirmedEmail = true;
     reservationToActivate.status = ReservationStatus.PENDING;
 
-    return await reservationToActivate.save();
+    const payload = { email: reservationToActivate.email };
+    const token = this.jwtService.sign(payload);
+
+    await reservationToActivate.save();
+
+    return token;
   }
 
   async reSendConfirmationToken(email: string) {
-    const reservation = await this.reservationModel.findOne({ email }).exec();
+    const reservation = await this.findByEmail(email);
+    if (!reservation)
+      throw new NotFoundException(`Reservation not found by email: ${email}`);
 
     const confirmationToken = (reservation.confirmationToken =
       generateConfirmationToken());
@@ -90,6 +112,41 @@ export class ReservationService {
     await reservation.save();
 
     await this.mailService.sendConfirmationEmail(email, confirmationToken);
+  }
+
+  async requestPasswordReset(email: string) {
+    const reservation = await this.findByEmail(email);
+    if (!reservation)
+      throw new NotFoundException(`Reservation not found by email: ${email}`);
+
+    const payload = {
+      email: reservation.email,
+    };
+
+    const token = this.jwtService.sign(payload, { expiresIn: '1h' });
+
+    await this.mailService.sendResetPassword(reservation.email, token);
+
+    return 'An email with a password reset link has been sent to your email address. Please follow the instructions in the email to reset your password.';
+  }
+
+  async resetPassword(email: string, resetPasswordDto: ResetPasswordDto) {
+    const { password } = resetPasswordDto;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const updatedReservation = await this.reservationModel.findOneAndUpdate(
+      { email },
+      { password: hashedPassword },
+      { new: true },
+    );
+
+    if (!updatedReservation)
+      throw new BadRequestException("We couldn't reset your password.");
+
+    await this.mailService.sendPasswordChangeConfirmation(email);
+
+    return true;
   }
 
   async update(
@@ -119,7 +176,7 @@ export class ReservationService {
     return updatedReservation;
   }
 
-  async findByEmail(email: string): Promise<Reservation | null> {
+  async findByEmail(email: string) {
     const reservationFound = await this.reservationModel
       .findOne({ email })
       .exec();

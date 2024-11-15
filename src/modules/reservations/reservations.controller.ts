@@ -15,6 +15,8 @@ import { ConfirmReservationDto } from './dto/confirm-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ExcludeSensitiveFieldsInterceptor } from 'src/interceptors/exclude-sensitive-fields.interceptor';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { GetEmail } from 'src/decorators/get-email.decorator';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('reservations')
 // @UseInterceptors(ExcludeSensitiveFieldsInterceptor)
@@ -31,6 +33,20 @@ export class ReservationsController {
     @Body() confirmReservationDto: ConfirmReservationDto,
   ) {
     return await this.reservationService.confirm(confirmReservationDto);
+  }
+
+  @Get('request-reset/:email')
+  async requestPasswordReset(@Param('email') email: string) {
+    return await this.reservationService.requestPasswordReset(email);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('reset-password')
+  async resetPassword(
+    @GetEmail() email: string,
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
+    return await this.reservationService.resetPassword(email, resetPasswordDto);
   }
 
   @Get('re-send-token/:email')

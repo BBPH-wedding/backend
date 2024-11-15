@@ -1,10 +1,6 @@
-import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import { IsNotEmpty, IsString, Matches } from 'class-validator';
 
-export class CreateReservationDto {
-  @IsEmail()
-  @IsNotEmpty()
-  email: string;
-
+export class ResetPasswordDto {
   @IsString()
   @IsNotEmpty()
   @Matches(/^(?=(.*[A-Z]))(?=(.*\d)).{8,}$/, {
