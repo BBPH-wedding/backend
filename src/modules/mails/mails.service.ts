@@ -42,12 +42,19 @@ export class MailsService {
     const templateCouple: TEMPLATES_MAIL =
       TEMPLATES_MAIL.NEW_RESERVATION_COUPLE;
 
-    const context: TContextMail = {
-      reservation: {
-        ...reservation,
-        nMembers: reservation.peopleComing.length,
-      },
-    };
+      const context: TContextMail = {
+        email: email,
+        reservation: {
+          ...reservation,
+          peopleComing: reservation.peopleComing.map(member => ({
+            firstName: member.firstName,
+            lastName: member.lastName,
+          })),
+          nMembers: reservation.peopleComing.length,
+          status: reservation.status,
+          notes: reservation.notes,
+        },
+      };
 
     //Enviar email al usuario
     await this.sendMail(email, subject, templateUser, context);
@@ -64,12 +71,19 @@ export class MailsService {
     const templateCouple: TEMPLATES_MAIL =
       TEMPLATES_MAIL.UPDATED_RESERVATION_COUPLE;
 
-    const context: TContextMail = {
-      reservation: {
-        ...reservation,
-        nMembers: reservation.peopleComing.length,
-      },
-    };
+      const context: TContextMail = {  
+        email: email,
+        reservation: {
+          ...reservation,
+          peopleComing: reservation.peopleComing.map(member => ({
+            firstName: member.firstName,
+            lastName: member.lastName,
+          })), 
+          nMembers: reservation.peopleComing.length,
+          status: reservation.status,
+          notes: reservation.notes,
+        },
+      };
 
     //Enviar email al usuario
     await this.sendMail(email, subject, templateUser, context);
