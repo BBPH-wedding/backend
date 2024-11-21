@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        color: #212529;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .email-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 32px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .names-container {
+        width: 100%;
+        text-align: center;
+        padding: 20px 0;
+      }
+
+      .names h1 {
+        font-family: Arial, sans-serif;
+        font-size: 48px;
+        color: #00b894;
+        margin: 0;
+        line-height: 1.2;
+      }
+
+      .flex-container {
+        width: 100%;
+        max-width: 400px;
+        margin: 20px auto;
+        text-align: center;
+        font-size: 0;
+      }
+
+      .divider {
+        display: inline-block;
+        width: 40%;
+        height: 2px;
+        background-color: #00b894;
+        vertical-align: middle;
+      }
+
+      .header {
+        text-align: center;
+        padding: 16px 0;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 24px;
+      }
+
+      .header h1 {
+        color: #00b894;
+        font-size: 28px;
+        margin: 0;
+      }
+
+      .reservation-details {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 24px;
+        margin: 20px 0;
+      }
+
+      .detail-item {
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .detail-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .detail-label {
+        font-weight: bold;
+        color: #495057;
+        margin-bottom: 4px;
+      }
+
+      .detail-value {
+        color: #212529;
+        list-style: none;
+        
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 14px;
+        font-weight: bold;
+        background-color: #00b894;
+        color: white;
+      }
+
+      .people-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .people-list li {
+        padding: 8px 0;
+        border-bottom: 1px dashed #e9ecef;
+      }
+
+      .people-list li:last-child {
+        border-bottom: none;
+      }
+
+      .notes {
+        background-color: #fff3cd;
+        border-left: 4px solid #ffc107;
+        padding: 16px;
+        margin: 20px 0;
+        border-radius: 4px;
+      }
+
+      .footer {
+        margin-top: 32px;
+        padding-top: 16px;
+        font-size: 14px;
+        color: #6c757d;
+        text-align: center;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      .footer p {
+        margin: 8px 0;
+      }
+
+      @media screen and (max-width: 480px) {
+        .email-container {
+          padding: 16px;
+        }
+
+        .header h1 {
+          font-size: 24px;
+        }
+
+        .reservation-details {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+  <div class="email-container">
+    <div class="header">
+      <h1>Your Reservation Has Been Updated!</h1>
+    </div>
+
+    <div class="content">
+      <p>Hello,</p>
+      <p>
+        Your reservation has been successfully updated. Here are the updated details of your reservation:
+      </p>
+
+      <div class="reservation-details">
+        <div class="detail-item">
+          <div class="detail-label">Email</div>
+          <div class="detail-value">{{email}}</div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-label">Reservation Status</div>
+          <div class="detail-value">
+            <span class="status-badge">{{reservation.status}}</span>
+          </div>
+        </div>
+
+        <div class="detail-item">
+          <div class="detail-label">Attendees</div>
+          <ul class="people-list">
+            {{#each reservation.peopleComing}}
+            <li>{{this.firstName}} {{this.lastName}}</li>
+            {{/each}}
+          </ul>
+        </div>
+
+        {{#if reservation.notes}}
+        <div class="detail-item">
+          <div class="detail-label">Additional Notes</div>
+          <div class="notes">
+            {{reservation.notes}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+
+      <p>
+      Please save this email for your reference. If you need to make any changes to your reservation, you can do so from the website, using the "edit reservation" button.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>
+        This is an automated email, please do not reply to this message.
+      </p>
+      <p>© 2024 Tores Pies - All rights reserved.</p>
+    </div>
+  </div>
+  </body>
+</html>

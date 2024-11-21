@@ -1,65 +1,175 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <style>
-        /* Estilos básicos */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            padding: 20px;
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        color: #212529;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+      }
+
+      .email-container {
+       width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 32px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .names-container {
+        width: 100%;
+        text-align: center;
+        padding: 20px 0;
+      }
+
+      .names h1 {
+        font-family: Arial, sans-serif;
+        font-size: 48px;
+        color: #00b894;
+        margin: 0;
+        line-height: 1.2;
+      }
+
+        .flex-container {
+        width: 100%;
+        max-width: 400px;
+        margin: 20px auto;
+        text-align: center;
+        font-size: 0; 
+      }
+      .divider {
+        display: inline-block;
+        width: 40%;
+        height: 2px;
+        background-color: #00b894;
+        vertical-align: middle;
+      }
+
+      .flex-container h1 {
+        display: inline-block;
+        font-family: Arial, sans-serif;
+        font-size: 32px;
+        color: #00b894;
+        margin: 0 10px;
+        vertical-align: middle;
+        font-weight: 300;
+      }
+
+      .names-secondary h1 {
+        font-family: Arial, sans-serif;
+        font-size: 48px;
+        color: #00b894;
+        margin: 20px 0 0 0;
+        line-height: 1.2;
+      }
+
+      .header {
+        text-align: center;
+        padding: 16px 0;
+        border-bottom: 2px solid #f0f0f0;
+        margin-top: 20px;
+      }
+
+      .header h1 {
+        color: #00b894;
+        font-size: 24px;
+        margin: 0;
+      }
+      .code {
+        font-size: 28px;
+        font-weight: bold;
+        color: #00b894;
+        background-color: #f8f9fa;
+        padding: 16px 32px;
+        margin: 24px auto;
+        border: 2px dashed #00b894;
+        display: inline-block;
+      }
+
+      .footer {
+        margin-top: 32px;
+        padding-top: 16px;
+        font-size: 14px;
+        color: #6c757d;
+        text-align: center;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      .footer p {
+        margin: 8px 0;
+      }
+
+      .content {
+        text-align: center;
+        padding: 20px 0;
+      }
+
+      .content p {
+        margin: 10px 0;
+      }
+
+
+      @media screen and (max-width: 480px) {
+        .names h1,
+        .names-secondary h1 {
+          font-size: 36px;
         }
-        .email-container {
-            background-color: #ffffff;
-            border-radius: 5px;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
+
+        .flex-container h1 {
+          font-size: 24px;
         }
-        .header {
-            text-align: center;
-            padding: 10px 0;
-        }
-        .header h1 {
-            color: #4CAF50;
-        }
-        .content {
-            margin: 20px 0;
-            text-align: center;
-        }
+
         .code {
-            font-size: 24px;
-            font-weight: bold;
-            color: #4CAF50;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border-radius: 5px;
-            display: inline-block;
-            margin: 20px 0;
+          font-size: 24px;
+          padding: 12px 24px;
         }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #777;
-            text-align: center;
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="email-container">
+      <div class="content">
+        <div class="names-container">
+          <div class="names">
+            <h1>Bekky</h1>
+          </div>
+
+          <div class="flex-container">
+            <div class="divider"></div>
+            <h1>&</h1>
+            <div class="divider"></div>
+          </div>
+
+          <div class="names-secondary">
+            <h1>Nicolas</h1>
+          </div>
+        </div>
+
         <div class="header">
-            <h1>Confirma tu Correo Electrónico</h1>
+          <h1>Confirm Your Email</h1>
         </div>
-        <div class="content">
-            <p>¡Hola!</p>
-            <p>Gracias por registrarte. Para completar tu registro, ingresa el siguiente código de confirmación en el formulario:</p>
-            <div class="code">{{code}}</div>
-            <p>Este código es válido por un tiempo limitado.</p>
-        </div>
-        <div class="footer">
-            <p>Si no solicitaste esta confirmación, puedes ignorar este correo.</p>
-            <p>© 2024 Wedding Site</p>
-        </div>
+
+        <p>Hello!</p>
+        <p>
+          Thank you for registering. To complete your registration, please enter
+          the following confirmation code in the form:
+        </p>
+        <div class="code">{{code}}</div>
+        <p>This code is valid for a limited time only.</p>
+      </div>
+      <div class="footer">
+        <p>
+          If you didn't request this confirmation, you can ignore this email.
+        </p>
+        <p>© 2024 Tores Pies - All rights reserved.</p>
+      </div>
     </div>
-</body>
+  </body>
 </html>
