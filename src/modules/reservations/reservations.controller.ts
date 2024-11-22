@@ -8,6 +8,7 @@ import {
   Param,
   UseInterceptors,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ReservationService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
@@ -17,6 +18,7 @@ import { ExcludeSensitiveFieldsInterceptor } from 'src/interceptors/exclude-sens
 import { AuthGuard } from 'src/guards/auth.guard';
 import { GetEmail } from 'src/decorators/get-email.decorator';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { StatusPaginationDto } from './dto/status-pagination.dto';
 
 @Controller('reservations')
 // @UseInterceptors(ExcludeSensitiveFieldsInterceptor)
@@ -38,6 +40,11 @@ export class ReservationsController {
   @Get('request-reset/:email')
   async requestPasswordReset(@Param('email') email: string) {
     return await this.reservationService.requestPasswordReset(email);
+  }
+
+  @Get()
+  async findAll(@Query() statusPaginationDto: StatusPaginationDto) {
+    return this.reservationService.findAll(statusPaginationDto);
   }
 
   @UseGuards(AuthGuard)
