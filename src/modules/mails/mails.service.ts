@@ -53,6 +53,7 @@ export class MailsService {
           nMembers: reservation.peopleComing.length,
           status: reservation.status,
           notes: reservation.notes,
+          phoneNumber: reservation.phoneNumber,
         },
       };
 
@@ -82,6 +83,7 @@ export class MailsService {
           nMembers: reservation.peopleComing.length,
           status: reservation.status,
           notes: reservation.notes,
+          phoneNumber: reservation.phoneNumber,
         },
       };
 
@@ -112,3 +114,4 @@ export class MailsService {
     await this.sendMail(email, subject, template, context);
   }
 }
+ 
