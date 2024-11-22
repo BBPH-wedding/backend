@@ -22,6 +22,7 @@ import { MailsService } from '../mails/mails.service';
 import { JwtService } from '@nestjs/jwt';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthService } from '../auth/auth.service';
+import { StatusPaginationDto } from './dto/status-pagination.dto';
 
 @Injectable()
 export class ReservationService {
@@ -99,6 +100,29 @@ export class ReservationService {
     await reservationToActivate.save();
 
     return token;
+  }
+
+  async findAll(statusPaginationDto: StatusPaginationDto) {
+    const { page, limit, status } = statusPaginationDto;
+
+    const filter = status ? { status } : undefined;
+
+    const totalDocuments = await this.reservationModel.countDocuments(filter);
+
+    const data = await this.reservationModel
+      .find(filter)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
+
+    return {
+      data,
+      meta: {
+        total: totalDocuments,
+        page: page,
+        lastPage: Math.ceil(totalDocuments / limit),
+      },
+    };
   }
 
   async reSendConfirmationToken(email: string) {
