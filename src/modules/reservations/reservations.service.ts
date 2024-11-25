@@ -1,17 +1,7 @@
-import {
-  BadRequestException,
-  forwardRef,
-  Inject,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import {
-  Reservation,
-  ReservationDocument,
-} from 'src/modules/reservations/schemas/reservation.schema';
+import { Reservation, ReservationDocument } from 'src/modules/reservations/schemas/reservation.schema';
 import * as bcrypt from 'bcrypt';
 import { generateConfirmationToken } from 'src/utils/generate-confirmation-token';
 import { CreateReservationDto } from 'src/modules/reservations/dto/create-reservation.dto';
@@ -23,6 +13,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthService } from '../auth/auth.service';
 import { StatusPaginationDto } from './dto/status-pagination.dto';
+import * as ExcelJS from 'exceljs';
+import { Response } from 'express';
 
 @Injectable()
 export class ReservationService {
@@ -217,5 +209,60 @@ export class ReservationService {
     if (!reservationToDelete)
       throw new NotFoundException(`Reservation not found by email: ${email}`);
     return reservationToDelete;
+  }
+
+  async exportToExcel(response: Response): Promise<void> {
+    const reservations = await this.reservationModel.find().exec();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Reservations');
+
+    worksheet.columns = [
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Status', key: 'status', width: 15 },
+      { header: 'Phone Number', key: 'phoneNumber', width: 20 },
+      { header: 'Notes', key: 'notes', width: 50 },
+      { header: 'People Coming', key: 'peopleComing', width: 50 },
+      { header: 'Total People', key: 'totalPeople', width: 15 },
+    ];
+
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.font = {
+        bold: true,
+        color: { argb: '263925' },
+        size: 12,
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' }; 
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'f1f2ec' },
+      };
+    });
+
+    reservations.forEach((reservation) => {
+      worksheet.addRow({
+        email: reservation.email,
+        status: reservation.status,
+        phoneNumber: reservation.phoneNumber,
+        notes: reservation.notes || '',
+        peopleComing: reservation.peopleComing
+          ?.map((person) => `${person.firstName} ${person.lastName}`)
+          .join(', '),
+        totalPeople: reservation.status == ReservationStatus.CONFIRMED? reservation.peopleComing.length : 0,
+      });
+    });
+
+    response.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    response.setHeader(
+      'Content-Disposition',
+      'attachment; filename=reservations.xlsx',
+    );
+
+    await workbook.xlsx.write(response);
+    response.end();
   }
 }
