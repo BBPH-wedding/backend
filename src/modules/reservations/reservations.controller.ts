@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Patch,
-  Get,
-  Delete,
-  Param,
-  UseInterceptors,
-  UseGuards,
-  Query,
-} from '@nestjs/common';
+import { Controller, Post, Body, Patch, Get, Delete, Param, UseInterceptors, UseGuards, Query, Res } from '@nestjs/common';
 import { ReservationService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { ConfirmReservationDto } from './dto/confirm-reservation.dto';
@@ -19,6 +8,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 import { GetEmail } from 'src/decorators/get-email.decorator';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { StatusPaginationDto } from './dto/status-pagination.dto';
+import { Response } from 'express';
 
 @Controller('reservations')
 // @UseInterceptors(ExcludeSensitiveFieldsInterceptor)
@@ -65,6 +55,12 @@ export class ReservationsController {
   @Patch()
   async updateReservation(@Body() updateReservationDto: UpdateReservationDto) {
     return await this.reservationService.update(updateReservationDto);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('export')
+  async exportToExcel(@Res() response: Response) {
+    return this.reservationService.exportToExcel(response);
   }
 
   @UseGuards(AuthGuard)
