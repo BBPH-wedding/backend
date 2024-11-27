@@ -17,11 +17,14 @@ import { generateConfirmationToken } from 'src/utils/generate-confirmation-token
 import { CreateReservationDto } from 'src/modules/reservations/dto/create-reservation.dto';
 import { ConfirmReservationDto } from 'src/modules/reservations/dto/confirm-reservation.dto';
 import { UpdateReservationDto } from 'src/modules/reservations/dto/update-reservation.dto';
-import { ReservationStatus } from 'src/constants';
+import { ReservationStatus, Role } from 'src/constants';
 import { MailsService } from '../mails/mails.service';
 import { JwtService } from '@nestjs/jwt';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AuthService } from '../auth/auth.service';
+import { StatusPaginationDto } from './dto/status-pagination.dto';
+import * as ExcelJS from 'exceljs';
+import { Response } from 'express';
 
 @Injectable()
 export class ReservationService {
@@ -93,12 +96,42 @@ export class ReservationService {
     reservationToActivate.isConfirmedEmail = true;
     reservationToActivate.status = ReservationStatus.PENDING;
 
-    const payload = { email: reservationToActivate.email };
+    const payload = { email: reservationToActivate.email, roles: [Role.USER] };
     const token = this.jwtService.sign(payload);
 
     await reservationToActivate.save();
 
     return token;
+  }
+
+  async findAll(statusPaginationDto: StatusPaginationDto) {
+    const { page, limit, status } = statusPaginationDto;
+
+    const filter: any = {};
+
+    if (status) {
+      filter.status = status;
+    }
+
+    filter.isConfirmedEmail = true;
+    if (!status) filter.status = { $ne: 'Pending' };
+
+    const totalDocuments = await this.reservationModel.countDocuments(filter);
+
+    const data = await this.reservationModel
+      .find(filter)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
+
+    return {
+      data,
+      meta: {
+        total: totalDocuments,
+        page: page,
+        lastPage: Math.ceil(totalDocuments / limit),
+      },
+    };
   }
 
   async reSendConfirmationToken(email: string) {
@@ -193,5 +226,63 @@ export class ReservationService {
     if (!reservationToDelete)
       throw new NotFoundException(`Reservation not found by email: ${email}`);
     return reservationToDelete;
+  }
+
+  async exportToExcel(response: Response): Promise<void> {
+    const reservations = await this.reservationModel.find().exec();
+
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Reservations');
+
+    worksheet.columns = [
+      { header: 'Email', key: 'email', width: 30 },
+      { header: 'Status', key: 'status', width: 15 },
+      { header: 'Phone Number', key: 'phoneNumber', width: 20 },
+      { header: 'Notes', key: 'notes', width: 50 },
+      { header: 'People Coming', key: 'peopleComing', width: 50 },
+      { header: 'Total People', key: 'totalPeople', width: 15 },
+    ];
+
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.font = {
+        bold: true,
+        color: { argb: '263925' },
+        size: 12,
+      };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'f1f2ec' },
+      };
+    });
+
+    reservations.forEach((reservation) => {
+      worksheet.addRow({
+        email: reservation.email,
+        status: reservation.status,
+        phoneNumber: reservation.phoneNumber,
+        notes: reservation.notes || '',
+        peopleComing: reservation.peopleComing
+          ?.map((person) => `${person.firstName} ${person.lastName}`)
+          .join(', '),
+        totalPeople:
+          reservation.status == ReservationStatus.CONFIRMED
+            ? reservation.peopleComing.length
+            : 0,
+      });
+    });
+
+    response.setHeader(
+      'Content-Type',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    );
+    response.setHeader(
+      'Content-Disposition',
+      'attachment; filename=reservations.xlsx',
+    );
+
+    await workbook.xlsx.write(response);
+    response.end();
   }
 }

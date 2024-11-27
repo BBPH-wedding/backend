@@ -11,6 +11,9 @@ interface IEnvVars {
   JWT_SECRET: string;
   JWT_EXPIRES_IN: string;
 
+  USERNAME_ADMIN: string;
+  PASSWORD_ADMIN: string;
+
   SMTP_HOST: string;
   SMTP_PORT: number;
   SMTP_USER: string;
@@ -30,6 +33,9 @@ const envsSchema = joi
 
     JWT_SECRET: joi.string().required(),
     JWT_EXPIRES_IN: joi.string().required(),
+
+    USERNAME_ADMIN: joi.string().required(),
+    PASSWORD_ADMIN: joi.string().required(),
 
     SMTP_HOST: joi.string().required(),
     SMTP_PORT: joi.number().required(),
@@ -58,6 +64,9 @@ export const envs = {
 
   jwtSecret: envVars.JWT_SECRET,
   jwtExpiresIn: envVars.JWT_EXPIRES_IN,
+
+  usernameAdmin: envVars.USERNAME_ADMIN,
+  passwordAdmin: envVars.PASSWORD_ADMIN,
 
   smtpHost: envVars.SMTP_HOST,
   smtpPort: envVars.SMTP_PORT,

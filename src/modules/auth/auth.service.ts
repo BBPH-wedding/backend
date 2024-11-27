@@ -1,19 +1,21 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { SignInDto } from './dto';
+import { SignInAdminDto, SignInDto } from './dto';
 import { MailsService } from '../mails/mails.service';
 import { ReservationService } from '../reservations/reservations.service';
+import { Role } from 'src/constants';
+import { envs } from 'src/config/envs';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly mailsService: MailsService,
     private readonly reservationService: ReservationService,
   ) {}
 
@@ -34,6 +36,7 @@ export class AuthService {
 
     const payload = {
       email: checkReservation.email,
+      roles: [Role.USER],
     };
 
     const token = this.jwtService.sign(payload);
@@ -41,11 +44,20 @@ export class AuthService {
     return token;
   }
 
-  async pruebaEmail(body: any) {
-    const email = body.email;
+  async signInAdmin(signInAdminDto: SignInAdminDto) {
+    const { username, password } = signInAdminDto;
+    
+    const isOkUsername = username === envs.usernameAdmin;
+    const isOkPassword = bcrypt.compareSync(password, envs.passwordAdmin);
+    if (!isOkPassword || !isOkUsername)
+      throw new ForbiddenException('Invalid Credentials');
 
-    await this.mailsService.sendMail(email, 'prueba', body.template, {
-      [body.key]: body.context,
-    });
+    const payload = {
+      roles: [Role.ADMIN],
+    };
+
+    const token = this.jwtService.sign(payload);
+
+    return token;
   }
 }
