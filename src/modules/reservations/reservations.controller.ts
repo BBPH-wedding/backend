@@ -1,14 +1,28 @@
-import { Controller, Post, Body, Patch, Get, Delete, Param, UseInterceptors, UseGuards, Query, Res } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Patch,
+  Get,
+  Delete,
+  Param,
+  UseInterceptors,
+  UseGuards,
+  Query,
+  Res,
+} from '@nestjs/common';
 import { ReservationService } from './reservations.service';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { ConfirmReservationDto } from './dto/confirm-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ExcludeSensitiveFieldsInterceptor } from 'src/interceptors/exclude-sensitive-fields.interceptor';
-import { AuthGuard } from 'src/guards/auth.guard';
 import { GetEmail } from 'src/decorators/get-email.decorator';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { StatusPaginationDto } from './dto/status-pagination.dto';
 import { Response } from 'express';
+import { AuthGuard, RolesGuard } from 'src/guards';
+import { Roles } from 'src/decorators/roles.decorator';
+import { Role } from 'src/constants';
 
 @Controller('reservations')
 // @UseInterceptors(ExcludeSensitiveFieldsInterceptor)
@@ -32,6 +46,8 @@ export class ReservationsController {
     return await this.reservationService.requestPasswordReset(email);
   }
 
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Get()
   async findAll(@Query() statusPaginationDto: StatusPaginationDto) {
     return this.reservationService.findAll(statusPaginationDto);
@@ -57,7 +73,8 @@ export class ReservationsController {
     return await this.reservationService.update(updateReservationDto);
   }
 
-  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Get('export')
   async exportToExcel(@Res() response: Response) {
     return this.reservationService.exportToExcel(response);
@@ -69,7 +86,8 @@ export class ReservationsController {
     return await this.reservationService.findByEmail(email);
   }
 
-  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(AuthGuard, RolesGuard)
   @Delete(':email')
   async deleteReservationByEmail(@Param('email') email: string) {
     return await this.reservationService.deleteByEmail(email);
