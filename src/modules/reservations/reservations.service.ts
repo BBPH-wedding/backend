@@ -1,13 +1,23 @@
-import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Reservation, ReservationDocument } from 'src/modules/reservations/schemas/reservation.schema';
+import {
+  Reservation,
+  ReservationDocument,
+} from 'src/modules/reservations/schemas/reservation.schema';
 import * as bcrypt from 'bcrypt';
 import { generateConfirmationToken } from 'src/utils/generate-confirmation-token';
 import { CreateReservationDto } from 'src/modules/reservations/dto/create-reservation.dto';
 import { ConfirmReservationDto } from 'src/modules/reservations/dto/confirm-reservation.dto';
 import { UpdateReservationDto } from 'src/modules/reservations/dto/update-reservation.dto';
-import { ReservationStatus } from 'src/constants';
+import { ReservationStatus, Role } from 'src/constants';
 import { MailsService } from '../mails/mails.service';
 import { JwtService } from '@nestjs/jwt';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -86,7 +96,7 @@ export class ReservationService {
     reservationToActivate.isConfirmedEmail = true;
     reservationToActivate.status = ReservationStatus.PENDING;
 
-    const payload = { email: reservationToActivate.email };
+    const payload = { email: reservationToActivate.email, roles: [Role.USER] };
     const token = this.jwtService.sign(payload);
 
     await reservationToActivate.save();
@@ -97,7 +107,14 @@ export class ReservationService {
   async findAll(statusPaginationDto: StatusPaginationDto) {
     const { page, limit, status } = statusPaginationDto;
 
-    const filter = status ? { status } : undefined;
+    const filter: any = {};
+
+    if (status) {
+      filter.status = status;
+    }
+
+    filter.isConfirmedEmail = true;
+    if (!status) filter.status = { $ne: 'Pending' };
 
     const totalDocuments = await this.reservationModel.countDocuments(filter);
 
@@ -232,7 +249,7 @@ export class ReservationService {
         color: { argb: '263925' },
         size: 12,
       };
-      cell.alignment = { vertical: 'middle', horizontal: 'center' }; 
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
       cell.fill = {
         type: 'pattern',
         pattern: 'solid',
