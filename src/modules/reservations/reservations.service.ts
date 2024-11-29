@@ -25,6 +25,7 @@ import { AuthService } from '../auth/auth.service';
 import { StatusPaginationDto } from './dto/status-pagination.dto';
 import * as ExcelJS from 'exceljs';
 import { Response } from 'express';
+import { envs } from 'src/config/envs';
 
 @Injectable()
 export class ReservationService {
@@ -36,7 +37,18 @@ export class ReservationService {
     private readonly jwtService: JwtService,
   ) {}
 
+  private checkReservationDeadline() {
+    const reservationDeadline = new Date(envs.reservationDeadline || '');
+    const currentDate = new Date();
+
+    if (currentDate > reservationDeadline) {
+      throw new BadRequestException('Reservation deadline has passed');
+    }
+  }
+
   async create(createReservationDto: CreateReservationDto) {
+    this.checkReservationDeadline();
+
     const { email, password } = createReservationDto;
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -107,14 +119,7 @@ export class ReservationService {
   async findAll(statusPaginationDto: StatusPaginationDto) {
     const { page, limit, status } = statusPaginationDto;
 
-    const filter: any = {};
-
-    if (status) {
-      filter.status = status;
-    }
-
-    filter.isConfirmedEmail = true;
-    if (!status) filter.status = { $ne: 'Pending' };
+    const filter = status ? { status, isConfirmedEmail: true } : {};
 
     const totalDocuments = await this.reservationModel.countDocuments(filter);
 
@@ -185,6 +190,8 @@ export class ReservationService {
   async update(
     updateReservationDto: UpdateReservationDto,
   ): Promise<Reservation | null> {
+    this.checkReservationDeadline();
+    
     const { email, ...updateFields } = updateReservationDto;
 
     const reservationToConfirm = await this.reservationModel
@@ -258,19 +265,18 @@ export class ReservationService {
     });
 
     reservations.forEach((reservation) => {
-      worksheet.addRow({
-        email: reservation.email,
-        status: reservation.status,
-        phoneNumber: reservation.phoneNumber,
-        notes: reservation.notes || '',
-        peopleComing: reservation.peopleComing
-          ?.map((person) => `${person.firstName} ${person.lastName}`)
-          .join(', '),
-        totalPeople:
-          reservation.status == ReservationStatus.CONFIRMED
-            ? reservation.peopleComing.length
-            : 0,
-      });
+      if (reservation.isConfirmedEmail) {
+        worksheet.addRow({
+          email: reservation.email,
+          status: reservation.status,
+          phoneNumber: reservation.phoneNumber,
+          notes: reservation.notes || '',
+          peopleComing: reservation.peopleComing
+            ?.map((person) => `${person.firstName} ${person.lastName}`)
+            .join(', '),
+          totalPeople: reservation.status == ReservationStatus.CONFIRMED? reservation.peopleComing.length : 0,
+        });
+      }
     });
 
     response.setHeader(
