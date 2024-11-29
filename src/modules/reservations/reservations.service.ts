@@ -119,7 +119,9 @@ export class ReservationService {
   async findAll(statusPaginationDto: StatusPaginationDto) {
     const { page, limit, status } = statusPaginationDto;
 
-    const filter = status ? { status, isConfirmedEmail: true } : {};
+    const filter = status
+      ? { status, isConfirmedEmail: true }
+      : { isConfirmedEmail: true };
 
     const totalDocuments = await this.reservationModel.countDocuments(filter);
 
@@ -191,7 +193,7 @@ export class ReservationService {
     updateReservationDto: UpdateReservationDto,
   ): Promise<Reservation | null> {
     this.checkReservationDeadline();
-    
+
     const { email, ...updateFields } = updateReservationDto;
 
     const reservationToConfirm = await this.reservationModel
