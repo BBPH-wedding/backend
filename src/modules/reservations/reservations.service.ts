@@ -265,19 +265,18 @@ export class ReservationService {
     });
 
     reservations.forEach((reservation) => {
-      worksheet.addRow({
-        email: reservation.email,
-        status: reservation.status,
-        phoneNumber: reservation.phoneNumber,
-        notes: reservation.notes || '',
-        peopleComing: reservation.peopleComing
-          ?.map((person) => `${person.firstName} ${person.lastName}`)
-          .join(', '),
-        totalPeople:
-          reservation.status == ReservationStatus.CONFIRMED
-            ? reservation.peopleComing.length
-            : 0,
-      });
+      if (reservation.isConfirmedEmail) {
+        worksheet.addRow({
+          email: reservation.email,
+          status: reservation.status,
+          phoneNumber: reservation.phoneNumber,
+          notes: reservation.notes || '',
+          peopleComing: reservation.peopleComing
+            ?.map((person) => `${person.firstName} ${person.lastName}`)
+            .join(', '),
+          totalPeople: reservation.status == ReservationStatus.CONFIRMED? reservation.peopleComing.length : 0,
+        });
+      }
     });
 
     response.setHeader(
