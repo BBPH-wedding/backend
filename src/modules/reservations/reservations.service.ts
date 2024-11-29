@@ -163,7 +163,7 @@ export class ReservationService {
       email: reservation.email,
     };
 
-    const token = this.jwtService.sign(payload, { expiresIn: '1h' });
+    const token = this.jwtService.sign(payload, { expiresIn: '5m' });
 
     await this.mailService.sendResetPassword(reservation.email, token);
 
