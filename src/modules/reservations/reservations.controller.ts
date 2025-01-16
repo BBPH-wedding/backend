@@ -16,7 +16,7 @@ import { CreateReservationDto } from './dto/create-reservation.dto';
 import { ConfirmReservationDto } from './dto/confirm-reservation.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ExcludeSensitiveFieldsInterceptor } from 'src/interceptors/exclude-sensitive-fields.interceptor';
-import { GetEmail } from 'src/decorators/get-email.decorator';
+import { GetReservationInfo } from 'src/decorators/get-reservation.decorator';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { StatusPaginationDto } from './dto/status-pagination.dto';
 import { Response } from 'express';
@@ -56,10 +56,13 @@ export class ReservationsController {
   @UseGuards(AuthGuard)
   @Post('reset-password')
   async resetPassword(
-    @GetEmail() email: string,
+    @GetReservationInfo() reservation: any,
     @Body() resetPasswordDto: ResetPasswordDto,
   ) {
-    return await this.reservationService.resetPassword(email, resetPasswordDto);
+    return await this.reservationService.resetPassword(
+      reservation.email,
+      resetPasswordDto,
+    );
   }
 
   @Get('re-send-token/:email')
@@ -69,8 +72,14 @@ export class ReservationsController {
 
   @UseGuards(AuthGuard)
   @Patch()
-  async updateReservation(@Body() updateReservationDto: UpdateReservationDto) {
-    return await this.reservationService.update(updateReservationDto);
+  async updateReservation(
+    @GetReservationInfo() reservation: any,
+    @Body() updateReservationDto: UpdateReservationDto,
+  ) {
+    return await this.reservationService.update(
+      reservation,
+      updateReservationDto,
+    );
   }
 
   @Roles(Role.ADMIN)
