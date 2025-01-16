@@ -189,10 +189,9 @@ export class ReservationService {
     return true;
   }
 
-  async update(
-    updateReservationDto: UpdateReservationDto,
-  ): Promise<Reservation | null> {
-    this.checkReservationDeadline();
+  async update(reservation: any, updateReservationDto: UpdateReservationDto) {
+    if (!reservation.roles.includes(Role.ADMIN))
+      this.checkReservationDeadline();
 
     const { email, ...updateFields } = updateReservationDto;
 
@@ -276,7 +275,10 @@ export class ReservationService {
           peopleComing: reservation.peopleComing
             ?.map((person) => `${person.firstName} ${person.lastName}`)
             .join(', '),
-          totalPeople: reservation.status == ReservationStatus.CONFIRMED? reservation.peopleComing.length : 0,
+          totalPeople:
+            reservation.status == ReservationStatus.CONFIRMED
+              ? reservation.peopleComing.length
+              : 0,
         });
       }
     });

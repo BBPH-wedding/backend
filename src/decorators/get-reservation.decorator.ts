@@ -4,7 +4,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 
-export const GetEmail = createParamDecorator(
+export const GetReservationInfo = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     if (!request.reservation)
@@ -12,6 +12,6 @@ export const GetEmail = createParamDecorator(
         'Reservation not found in request (AuthGuard called?)',
       );
 
-    return request.reservation.email;
+    return request.reservation;
   },
 );
